@@ -8,38 +8,15 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-# Зареждане на ключовете от околната среда
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-openai.api_key = OPENAI_API_KEY
 if not OPENAI_API_KEY:
     raise ValueError("Грешка: Липсва OpenAI API ключ! Задайте го в .env или в средата.")
-openai.api_key = OPENAI_API_KEY
 
+# Инициализирай клиента без допълнителни аргументи
 client = openai.OpenAI(api_key=OPENAI_API_KEY)
 
-# Информация от сайта
-CPEPE_INFO = """
-$CPEPE е DeFi екосистема, стартираща на 7 март 2025 г. с общ запас от 1 трилион токена.
-За да купите $CPEPE:
-1. Посетете https://charitypepe.com
-2. Свържете MetaMask или друг Ethereum портфейл
-3. Участвайте в пресейла: Pre-sale 1 - $0.0001, Pre-sale 2 - $0.0002
-4. Очаквайте до 20x-22x възвръщаемост след листинг!
-"""
-
-# Поддържани езици
-SUPPORTED_LANGUAGES = ["en", "bg", "de", "es", "fr", "ru", "it"]
-
-# Разпознаване на езика
-def detect_language(message):
-    try:
-        lang = detect(message)
-        return lang if lang in SUPPORTED_LANGUAGES else "en"
-    except Exception as e:
-        print(f"Error detecting language: {e}")
-        return "en"
-
+# Останалата част от кода остава до send_to_bot()
 @app.route("/send_to_bot", methods=["POST"])
 def send_to_bot():
     data = request.json
@@ -49,15 +26,14 @@ def send_to_bot():
     if not message:
         return jsonify({"response": "Error: No message provided"})
     
-    # Разпознаване на езика
     lang = detect_language(message)
 
     try:
+        # Нов синтаксис за чат заявка
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": f"You are an AI assistant for CharityPEPE ($CPEPE), an ERC-20 token on Ethereum. "
-                                              f"Answer in the language of the message (detected as '{lang}'). Use this info:\n\n{CPEPE_INFO}"},
+                {"role": "system", "content": f"You are an AI assistant for CharityPEPE ($CPEPE), an ERC-20 token on Ethereum. Answer in the language of the message (detected as '{lang}'). Use this info:\n\n{CPEPE_INFO}"},
                 {"role": "user", "content": message}
             ]
         )
