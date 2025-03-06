@@ -8,12 +8,13 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-# Зареждане на ключовете от .env
+# Зареждане на ключовете от околната среда
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-
+openai.api_key = OPENAI_API_KEY
 if not OPENAI_API_KEY:
-    raise ValueError("Error: Missing OpenAI API key!")
+    raise ValueError("Грешка: Липсва OpenAI API ключ! Задайте го в .env или в средата.")
+openai.api_key = OPENAI_API_KEY
 
 client = openai.OpenAI(api_key=OPENAI_API_KEY)
 
